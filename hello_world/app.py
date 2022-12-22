@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 @app.route('/')
@@ -28,6 +28,20 @@ def json_example():
         ]
     }
     return jsonify(retJson)
+
+@app.route('/add', methods=["POST"])
+def add_two_nums():
+    data = request.get_json()
+    x = data["x"]
+    y = data["y"]
+
+    z = x + y
+
+    retJSON = {
+        "z": z
+    }
+
+    return jsonify(retJSON), 200
 
 if __name__=="__main__":
     app.run(debug=True)
