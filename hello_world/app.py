@@ -10,4 +10,4 @@ def hi_there():
     return "Welcome to /hithere!"
 
 if __name__=="__main__":
-    app.run()
+    app.run(debug=True)
