@@ -6,7 +6,7 @@ api = Api(app)
 
 
 def checkPostedData(postedData, function):
-    if (function in ['add', 'subtract']):
+    if (function in ['add', 'subtract', 'multiply']):
         if "x" not in postedData or "y" not in postedData:
             return 301
         else:
@@ -60,7 +60,26 @@ class Subtract(Resource):
 
 
 class Multiply(Resource):
-    pass
+    def post(self):
+        postedData = request.get_json()
+        statusCode = checkPostedData(postedData, "multiply")
+
+        if (statusCode != 200):
+            resultJSON = {
+                'Message': 'An error has occured',
+                'Status Code': statusCode
+            }
+            return jsonify(resultJSON)
+
+        x = int(postedData["x"])
+        y = int(postedData["y"])
+
+        result = x * y
+        resultJSON = {
+            'Status Code': 200,
+            'Message': result
+        }
+        return jsonify(resultJSON)
 
 
 class Divide(Resource):
@@ -69,6 +88,7 @@ class Divide(Resource):
 
 api.add_resource(Add, "/add")
 api.add_resource(Subtract, "/subtract")
+api.add_resource(Multiply, "/multiply")
 
 
 @app.route('/')
