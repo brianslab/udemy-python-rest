@@ -19,12 +19,12 @@ users = db["Users"]
 
 class Register(Resource):
     def post(self):
-        postedData = request.get_json()
+        posted_data = request.get_json()
 
         # get the username and password
         # assume valid input
-        username = postedData["username"]
-        password = postedData["password"]
+        username = posted_data["username"]
+        password = posted_data["password"]
 
         # hash the password
         hashed_pw = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -35,3 +35,16 @@ class Register(Resource):
             "Password": hashed_pw,
             "Sentence": ""
         })
+
+        ret_json = {
+            "status": 200,
+            "msg": "Successfully signed up for the API"
+        }
+
+        return jsonify(ret_json)
+
+
+api.add_resource(Register, '/register')
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
