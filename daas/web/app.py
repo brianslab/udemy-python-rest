@@ -27,7 +27,7 @@ class Register(Resource):
         password = posted_data["password"]
 
         # hash the password
-        hashed_pw = bcrypt.hashpw(password, bcrypt.gensalt())
+        hashed_pw = bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())
 
         # store username and hashed pw
         users.insert_one({
@@ -45,13 +45,32 @@ class Register(Resource):
         return jsonify(ret_json)
 
 
+def verify_pw(username, password):
+    hashed_pw = users.find({
+        "Username": username
+    })[0]["Password"]
+
+    if bcrypt.hashpw(password.encode('utf8'), hashed_pw) == hashed_pw:
+        return True
+    else:
+        return False
+
+
+def count_tokens(username):
+    tokens = users.find({
+        "Username": username
+    })[0]["Tokens"]
+
+    return tokens
+
+
 class Store(Resource):
     def post(self):
         posted_data = request.get_json()
 
         username = posted_data["username"]
         password = posted_data["password"]
-        sentence = posted_data["sencence"]
+        sentence = posted_data["sentence"]
 
         # verify the username and pw match
         correct_pw = verify_pw(username, password)
@@ -79,6 +98,7 @@ class Store(Resource):
                 "Tokens": num_tokens - 1
             }
         })
+
         ret_json = {
             "status": 200,
             "msg": "Sentece saved successfully"
@@ -87,6 +107,7 @@ class Store(Resource):
 
 
 api.add_resource(Register, '/register')
+api.add_resource(Store,  '/store')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
