@@ -33,7 +33,8 @@ class Register(Resource):
         users.insert_one({
             "Username": username,
             "Password": hashed_pw,
-            "Sentence": ""
+            "Sentence": "",
+            "Tokens": 10
         })
 
         ret_json = {
@@ -41,6 +42,47 @@ class Register(Resource):
             "msg": "Successfully signed up for the API"
         }
 
+        return jsonify(ret_json)
+
+
+class Store(Resource):
+    def post(self):
+        posted_data = request.get_json()
+
+        username = posted_data["username"]
+        password = posted_data["password"]
+        sentence = posted_data["sencence"]
+
+        # verify the username and pw match
+        correct_pw = verify_pw(username, password)
+
+        if not correct_pw:
+            ret_json = {
+                "status": 302
+            }
+            return jsonify(ret_json)
+
+        # verify user has enough tokens
+        num_tokens = count_tokens(username)
+        if num_tokens <= 0:
+            ret_json = {
+                "status": 301
+            }
+            return jsonify(ret_json)
+
+        # store sentence and return 200
+        users.update_one({
+            "Username": username
+        }, {
+            "$set": {
+                "Sentence": sentence,
+                "Tokens": num_tokens - 1
+            }
+        })
+        ret_json = {
+            "status": 200,
+            "msg": "Sentece saved successfully"
+        }
         return jsonify(ret_json)
 
 
